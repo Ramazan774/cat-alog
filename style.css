@@ -1,10 +1,14 @@
 *{
   background-color:azure;
+  font-family: 'Poppins', sans-serif;
+  text-decoration: none;
 }
 
 section {
+  display: flex;
+  flex-direction: column;
   width: 80vw;
-  padding: 1.2rem;
+  padding: 8rem 12%;
 }
 .search-container {
   background-color: #FFF;
@@ -33,16 +37,20 @@ section {
   outline: 0;
 }
 .search-page img {
-  width: 700px;
+  display: block;
+  flex-direction: column;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 600px;
   height: auto;
-  align-items: center;
-  justify-content: center;
-  border-radius: 1.5rem;
+  border-radius: 3rem;
   padding-top: 1rem;
-  text-align: center;
 }
 .text {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  
 }
