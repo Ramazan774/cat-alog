@@ -11,74 +11,88 @@ const catImages = [
   'assets/image8.JPG'
 ];
 
-function getRandomImage(arr){
+function getRandomImage(arr) {
   const index = Math.floor(Math.random() * arr.length);
   return arr[index];
 }
 
-document.getElementById('search-btn').addEventListener('click',
-async function searchCats() {
+document.getElementById('search-btn').addEventListener('click', 
+  async function searchCats() {
   const inputValue = document.getElementById('search-box').value.toLowerCase();
   const resultDiv = document.getElementById('result');
   resultDiv.innerHTML = '';
   
-  if(!inputValue) {
+  if (!inputValue) {
     alert('Please enter a cat breed.');
-    return;
-  } 
-try {
-  const breedResponse = await fetch(apiUrl, {
-    headers: {
-      'x-api-key': apiKey
-    }
-  });
-  const breeds = await breedResponse.json();
-
-  const matchedBreed = breeds.find(breed => breed.name.toLowerCase().includes(inputValue));
-  document.getElementById('intro-text').style.display = 'none';
-  document.getElementById('search-box').value = '';
-
-  if(!matchedBreed){
-    resultDiv.innerHTML = `<p>No breed found for "${input}".</p>`;
-    const introText = document.getElementById('intro-text');
-    introText.style.display = 'block';
-    introText.querySelector('img').src = getRandomImage(catImages);
     return;
   }
 
-  const imageResponse = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${matchedBreed.id}`, {
-    headers: {
-      'x-api-key': apiKey
+  try {
+    const breedResponse = await fetch(apiUrl, {
+      headers: { 'x-api-key': apiKey }
+    });
+    const breeds = await breedResponse.json();
+
+    const matchedBreed = breeds.find(breed => 
+      breed.name.toLowerCase().includes(inputValue)
+    );
+    
+    document.getElementById('search-box').value = '';
+    document.getElementById('search-page').style.display = 'none';
+    document.getElementById('cat-info-page').style.display = 'block';
+
+    if (!matchedBreed) {
+      resultDiv.innerHTML = `<p>No results found. Please try again.</p>`;
+      
+      document.getElementById('intro-info').querySelector('img').src = getRandomImage(catImages) + '?v=' + Date.now();
+      document.getElementById('back-btn').style.display = 'block';
+      return;
     }
-  });
-  const imageData = await imageResponse.json();
-  const imageUrl = imageData[0]?.url || '';
 
-  const template = document.getElementById('cat-template');
-  const clone = template.content.cloneNode(true);
+    // If a matching breed is found, fetch the image for the breed.
+    const imageResponse = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${matchedBreed.id}`, {
+      headers: { 'x-api-key': apiKey }
+    });
+    const imageData = await imageResponse.json();
+    const imageUrl = imageData[0]?.url || '';
 
-  clone.querySelector('.cat-image').src = imageUrl;
-  clone.querySelector('.cat-image').alt = matchedBreed.name;
-  clone.querySelector('.cat-name').textContent = matchedBreed.name;
-  clone.querySelector('.cat-origin').textContent = matchedBreed.origin;
-  clone.querySelector('.cat-temperament').textContent = matchedBreed.temperament;
-  clone.querySelector('.cat-lifespan').textContent = matchedBreed.life_span;
-  clone.querySelector('.cat-description').textContent = matchedBreed.description;
+    const template = document.getElementById('cat-template');
+    const clone = template.content.cloneNode(true);
 
-  resultDiv.appendChild(clone);
-} catch (error) {
-  console.error('Error fetching data: ', error);
-  resultDiv.innerHTML = `<p>Something went wrong. Please try again later.</p>`;
-  const introText = document.getElementById('intro-text');
-  introText.style.display = 'block';
-  introText.querySelector('img').src = getRandomImage(catImages);
-}
+    clone.querySelector('.cat-image').src = imageUrl;
+    clone.querySelector('.cat-image').alt = matchedBreed.name;
+    clone.querySelector('.cat-name').textContent = matchedBreed.name;
+    clone.querySelector('.cat-origin').textContent = matchedBreed.origin;
+    clone.querySelector('.cat-temperament').textContent = matchedBreed.temperament;
+    clone.querySelector('.cat-lifespan').textContent = matchedBreed.life_span;
+    clone.querySelector('.cat-description').textContent = matchedBreed.description;
+
+    resultDiv.innerHTML = '';
+    resultDiv.appendChild(clone);
+
+    document.getElementById('back-btn').style.display = 'none';
+  } catch (error) {
+    console.error('Error fetching data: ', error);
+    resultDiv.innerHTML = `<p>Something went wrong. Please try again.</p>`;
+    
+    document.getElementById('intro-text').querySelector('img').src = getRandomImage(catImages) + '?v=' + Date.now();
+    document.getElementById('back-btn').style.display = 'block';
+  }
 });
+
+document.getElementById('back-btn').addEventListener('click', () => {
+  document.getElementById('search-page').style.display = 'block';
+  document.getElementById('cat-info-page').style.display = 'none';
+})
 
 window.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('#intro-text img').src = getRandomImage(catImages);
-  introImg.src = getRandomImage(images) + '?v=' + Date.now();
-  console.log('Random image URL:', introImg.src);
-});
+  const introImg = document.querySelector('#intro-text img');
+  introImg.src = getRandomImage(catImages) + '?v=' + Date.now();
 
-  
+  const introImg2 = document.querySelector('#intro-info img');
+  if (introImg2) {
+    introImg2.src = getRandomImage(catImages) + '?v=' + Date.now();
+  }
+
+  document.getElementById('back-btn').style.display = 'none';
+});
